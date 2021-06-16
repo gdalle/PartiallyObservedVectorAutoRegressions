@@ -1,5 +1,8 @@
 # Partially-Observed Vector AutoRegressions
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4969054.svg)](https://doi.org/10.5281/zenodo.4969054)
+
+
 This repository contains the code associated with the manuscript *Minimax Estimation of Partially-Observed Vector AutoRegressions*, by Guillaume Dalle and Yohann De Castro. The notebooks allow anyone to re-generate the plots included in the paper.
 
 ## Setup
