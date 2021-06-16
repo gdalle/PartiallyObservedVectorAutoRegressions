@@ -1,15 +1,16 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 
 def drop_useless_columns(data):
+    """Drop the columns containing duplicate or useless columns."""
     data = data.drop(
         labels=[
-            # we stay in Zürich
+            # we stay in a given city
             "agency_id",
             "agency_name",
             "agency_short_name",
-            # we stay on the tram
+            # we stay on a given transportation network
             "transportation_type",
             "transportation_subtype",
             # we already have stop id
@@ -25,7 +26,7 @@ def drop_useless_columns(data):
 
 
 def uncategorize(data):
-    # Uncategorize categorical variables for future group-bys
+    """Uncategorize categorical variables for future group-bys."""
     for string_col in ["stop_id", "line_name", "trip_id"]:
         data[string_col] = data[string_col].astype("string")
     for bool_col in ["unplanned_trip", "cancelled_trip", "skipped_stop"]:
@@ -38,6 +39,7 @@ def uncategorize(data):
 
 
 def remove_skipped_unplanned_cancelled(data):
+    """Remove skipped stop, unplanned or cancelled trips."""
     perturbations = (
         (~data["skipped_stop"]) & (~data["unplanned_trip"]) & (~data["cancelled_trip"])
     )
@@ -48,6 +50,7 @@ def remove_skipped_unplanned_cancelled(data):
 
 
 def keep_only_arrivals(data):
+    """Remove departure events and rename arrival columns."""
     departure_cols = [
         "departure_time_planned",
         "departure_time_real",
@@ -69,6 +72,7 @@ def keep_only_arrivals(data):
 
 
 def add_next_event(data):
+    """Add the next event from the same trip to each row."""
     data = data.sort_values(
         ["date", "trip_id", "event_time_planned", "event_time_real"]
     )
@@ -93,6 +97,7 @@ def add_next_event(data):
 
 
 def add_delay_columns(data):
+    """Compute edge durations and delays."""
     data["event_delay"] = (
         data["event_time_real"] - data["event_time_planned"]
     ).dt.total_seconds().astype("float32") / 60
@@ -120,6 +125,7 @@ def remove_outliers_delays(
     min_edge_delay,
     max_edge_delay,
 ):
+    """Remove outliers based on predefined duration and delay thresholds."""
     last_stop = data["next_stop_id"].isnull()
     no_event_time = data["event_time_real"].isnull()
     no_next_event_time = data["next_event_time_real"].isnull()

@@ -4,15 +4,11 @@ import numpy as np
 
 
 def build_network(data, stops, max_edge_rank):
-    """Build graph with most frequent edges."""
+    """Build tramway network from most frequent edges."""
     # Create graph object
     G = nx.DiGraph()
-
     # Add nodes
-    for stop_id in np.union1d(
-        data["stop_id"].unique(),
-        data["next_stop_id"].unique()
-    ):
+    for stop_id in np.union1d(data["stop_id"].unique(), data["next_stop_id"].unique()):
         G.add_node(stop_id)
         if stop_id in stops.index:
             G.nodes[stop_id]["stop_name"] = stops.loc[stop_id, "stop_name"]
@@ -39,8 +35,7 @@ def build_network(data, stops, max_edge_rank):
             duration=edge_df.loc[(stop_id, next_stop_id), "duration"],
         )
         G.edges[stop_id, next_stop_id]["latitude"] = (
-            0.5 * G.nodes[stop_id]["latitude"]
-            + 0.5 * G.nodes[next_stop_id]["latitude"]
+            0.5 * G.nodes[stop_id]["latitude"] + 0.5 * G.nodes[next_stop_id]["latitude"]
         )
         G.edges[stop_id, next_stop_id]["longitude"] = (
             0.5 * G.nodes[stop_id]["longitude"]
@@ -64,3 +59,26 @@ def build_network(data, stops, max_edge_rank):
         G.nodes[node]["distance"] = distance
 
     return G
+
+
+def get_distance(G, edge1, edge2):
+    """Retrieve pre-computed inter-edge distance."""
+    s1, _ = edge1
+    s2, _ = edge2
+    path_distance = min(
+        G.nodes[s1]["distance"].get(s2, np.inf),
+        G.nodes[s2]["distance"].get(s1, np.inf),
+    )
+    return path_distance
+
+
+def get_distance_matrix(G):
+    """Build matrix for faster access to inter-edge distances."""
+    E = G.number_of_edges()
+    d = np.empty((E, E))
+    for edge1 in G.edges():
+        for edge2 in G.edges():
+            id1, id2 = G.edges[edge1]["edge_id"], G.edges[edge2]["edge_id"]
+            distance = get_distance(G, edge1, edge2)
+            d[id1, id2] = distance
+    return d

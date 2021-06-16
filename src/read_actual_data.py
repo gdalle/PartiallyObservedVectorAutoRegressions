@@ -1,11 +1,9 @@
 import itertools
 import os
 import zipfile
-
-import pandas as pd
-import numpy as np
-from tqdm.notebook import tqdm
 from joblib import Parallel, delayed
+import pandas as pd
+from tqdm.notebook import tqdm
 
 # Constants
 
@@ -125,7 +123,7 @@ def read_day_csv(daily_csv_path):
 def unzip_single_month_store_days(
     monthly_zip_dir_path, monthly_zip_name, daily_parquet_dir_path
 ):
-    """Read zipped month full of csv and split them into parquet days."""
+    """Read a single zipped month full of csv and split it into parquet days."""
     monthly_zip_path = os.path.join(monthly_zip_dir_path, monthly_zip_name)
     with zipfile.ZipFile(monthly_zip_path) as monthly_zip_file:
         # Loop over all days of the month
@@ -150,8 +148,10 @@ def unzip_single_month_store_days(
 
 
 def unzip_months_store_days(
-    monthly_zip_dir_path, daily_parquet_dir_path,
+    monthly_zip_dir_path,
+    daily_parquet_dir_path,
 ):
+    """Read all zipped months full of csv and split them into parquet days."""
     monthly_zip_names = [
         name
         for name in sorted(os.listdir(monthly_zip_dir_path))
@@ -165,10 +165,6 @@ def unzip_months_store_days(
             monthly_zip_names, desc="Decompressing months for 2018-2019"
         )
     )
-    # for monthly_zip_name in monthly_zip_names:
-    #     unzip_single_month_store_days(
-    #         monthly_zip_dir_path, monthly_zip_name, daily_parquet_dir_path
-    #     )
 
 
 def read_days_store_months(daily_parquet_dir_path, monthly_parquet_dir_path):
@@ -181,8 +177,7 @@ def read_days_store_months(daily_parquet_dir_path, monthly_parquet_dir_path):
         if daily_files:
             monthly_data_list = []
             for date in tqdm(daily_files, desc="Reading " + yearmonth):
-                daily_data = pd.read_parquet(
-                    os.path.join(daily_parquet_dir_path, date))
+                daily_data = pd.read_parquet(os.path.join(daily_parquet_dir_path, date))
                 monthly_data_list.append(daily_data)
             monthly_data = concat_preserving_categorical(monthly_data_list)
             monthly_data.to_parquet(
@@ -193,6 +188,7 @@ def read_days_store_months(daily_parquet_dir_path, monthly_parquet_dir_path):
 def read_months_return_full(
     monthly_parquet_dir_path, full_parquet_path, years=[2018, 2019]
 ):
+    """Read parquet months and put them together into a full dataframe."""
     data = concat_preserving_categorical(
         [
             pd.read_parquet(os.path.join(monthly_parquet_dir_path, monthly_file))

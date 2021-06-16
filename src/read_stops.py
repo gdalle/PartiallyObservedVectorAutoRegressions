@@ -1,7 +1,7 @@
+import requests
 import numpy as np
 import pandas as pd
 from pyproj import Transformer
-import requests
 from tqdm.notebook import tqdm
 
 STOPS_URL = "https://opentransportdata.swiss/dataset/b9d607ba-4ff5-43a6-ac83-293f454df1fd/resource/d70319b9-3de3-4acb-9985-1bb3882b6a23/download/bav_list_current_timetable.xlsx"
@@ -40,12 +40,14 @@ STOPS_COLUMNS = {
 
 
 def download_stops_data(path):
+    """Download stop list to a given path."""
     request_result = requests.get(STOPS_URL)
     with open(path, "wb") as output_file:
         output_file.write(request_result.content)
 
 
 def read_stops_data(path):
+    """Read stop list and parse Swiss coordinates into (longitude, latitude)."""
     stops = pd.read_excel(
         path,
         skiprows=[1, 2, 3],
@@ -81,4 +83,3 @@ def read_stops_data(path):
         ]
     )
     return stops
-
