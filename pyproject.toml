@@ -27,6 +27,7 @@ xlrd = "^2.0.1"
 openpyxl = "^3.0.7"
 pyarrow = "^4.0.1"
 cvxopt = "^1.2.6"
+xarray = "^0.18.2"
 
 [tool.poetry.dev-dependencies]
 

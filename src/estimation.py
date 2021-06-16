@@ -45,7 +45,7 @@ def estimate_transition(data, freq, lambda0_range):
     X, p = build_X(data, freq)
     povar = POVAR(
         var=VAR(theta=None, sigma=None),
-        sampler=FixedSizeSampler(p=p, replace=True, time_indep=True),
+        sampler=FixedSizeSampler(p=p),
         observer=Observer(omega=0.0),
     )
     thetas = povar.estimate_theta(

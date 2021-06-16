@@ -186,7 +186,7 @@ def read_days_store_months(daily_parquet_dir_path, monthly_parquet_dir_path):
 
 
 def read_months_return_full(
-    monthly_parquet_dir_path, full_parquet_path, years=[2018, 2019]
+    monthly_parquet_dir_path, years=[2018, 2019]
 ):
     """Read parquet months and put them together into a full dataframe."""
     data = concat_preserving_categorical(
@@ -198,7 +198,4 @@ def read_months_return_full(
             if any(str(year) in monthly_file for year in years)
         ]
     )
-
-    # Store full parquet file
-    data.to_parquet(full_parquet_path)
     return data
